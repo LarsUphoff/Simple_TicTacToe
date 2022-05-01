@@ -1,6 +1,5 @@
 package tictactoe;
 
-
 public class Grid {
 
     private final char[][] ticTacToeGrid;
