@@ -5,10 +5,13 @@ import java.util.Scanner;
 public class Game {
     private final Scanner scanner = new Scanner(System.in);
     private final Grid grid = new Grid();
-    private String row;
-    private String column;
+    private int row;
+    private int column;
     private char currentPlayer;
     private int sumOfCharacters = 0;
+    private final int numberOfRows = 3;
+    private final int numberOfColumns = 3;
+    private boolean userInputViolatesExpectedFormat;
 
     public Game() {
         currentPlayer = 'O';
@@ -24,7 +27,7 @@ public class Game {
         }
     }
 
-    public boolean gameIsInProgress() {
+    private boolean gameIsInProgress() {
         if (gameResultIsImpossible()) {
             System.out.println("Impossible");
             return false;
@@ -39,8 +42,7 @@ public class Game {
     }
 
     private boolean gameResultIsImpossible() {
-        int sumX = 0;
-        int sumO = 0;
+        int sumX = 0, sumO = 0;
         for (char[] row : grid.getTicTacToeGrid()) {
             for (char cell : row) {
                 if (cell == 'X') sumX++;
@@ -54,7 +56,7 @@ public class Game {
         return horizontalWin() || verticalWin() || diagonalWin();
     }
 
-    public boolean horizontalWin() {
+    private boolean horizontalWin() {
         for (char[] row : grid.getTicTacToeGrid()) {
             sumOfCharacters = 0;
             for (char cell : row) {
@@ -73,20 +75,20 @@ public class Game {
         return sumOfCharacters == 3;
     }
 
-    public boolean verticalWin() {
-        for (int i = 0; i <= 2; i++) {
+    private boolean verticalWin() {
+        for (int i = 0; i < numberOfColumns; i++) {
             sumOfCharacters = 0;
-            for (int j = 0; j <= 2; j++) {
-                if (cellEqualsCurrentPlayersMark(grid.getCellValue(j, i))) sumOfCharacters++;
+            for (int j = 0; j < numberOfRows; j++) {
+                if (cellEqualsCurrentPlayersMark(grid.getCellMark(j, i))) sumOfCharacters++;
             }
             if (playerHasThreeMarksInARow()) return true;
         }
         return false;
     }
 
-    public boolean diagonalWin() {
-        return (cellEqualsCurrentPlayersMark(grid.getCellValue(0, 0))) && (cellEqualsCurrentPlayersMark(grid.getCellValue(1, 1))) && (cellEqualsCurrentPlayersMark(grid.getCellValue(2, 2)))
-                || (cellEqualsCurrentPlayersMark(grid.getCellValue(0, 2))) && (cellEqualsCurrentPlayersMark(grid.getCellValue(1, 1))) && (cellEqualsCurrentPlayersMark(grid.getCellValue(2, 0)));
+    private boolean diagonalWin() {
+        return (cellEqualsCurrentPlayersMark(grid.getCellMark(0, 0))) && (cellEqualsCurrentPlayersMark(grid.getCellMark(1, 1))) && (cellEqualsCurrentPlayersMark(grid.getCellMark(2, 2)))
+                || (cellEqualsCurrentPlayersMark(grid.getCellMark(0, 2))) && (cellEqualsCurrentPlayersMark(grid.getCellMark(1, 1))) && (cellEqualsCurrentPlayersMark(grid.getCellMark(2, 0)));
     }
 
     private boolean gameIsADraw() {
@@ -94,40 +96,42 @@ public class Game {
     }
 
     private void changePlayer() {
-        if (currentPlayer == 'O') {
-            currentPlayer = 'X';
-        } else {
-            currentPlayer = 'O';
-        }
+        currentPlayer = currentPlayer == 'O' ? 'X' : 'O';
     }
 
     private void getCoordinates() {
         do {
             System.out.println("Enter the coordinates: ");
-            row = scanner.next();
-            column = scanner.next();
-        } while (!userInputIsCorrect());
+            try {
+                row = Integer.parseInt(scanner.next()) - 1;
+                column = Integer.parseInt(scanner.next()) - 1;
+            } catch (Exception e) {
+                userInputViolatesExpectedFormat = true;
+            }
+        } while (userInputIsIncorrect());
     }
 
-    public boolean userInputIsCorrect() {
-        int intRowCoordinate;
-        int intColumnCoordinate;
-        try {
-            intRowCoordinate = Integer.parseInt(row) - 1;
-            intColumnCoordinate = Integer.parseInt(column) - 1;
-        } catch (Exception e) {
+    private boolean userInputIsIncorrect() {
+        if (userInputViolatesExpectedFormat) {
             System.out.println("You should enter numbers!");
-            return false;
-        }
-        if (intRowCoordinate > 2 || (intRowCoordinate < 0) || (intColumnCoordinate > 2) || (intColumnCoordinate < 0)) {
+            userInputViolatesExpectedFormat = false;
+            return true;
+        } else if (coordinatesAreOutOfRange()) {
             System.out.println("Coordinates should be from 1 to 3!");
-            return false;
-        } else if (grid.getCellValue(intRowCoordinate, intColumnCoordinate) == 'X' || grid.getCellValue(intRowCoordinate, intColumnCoordinate) == 'O') {
+            return true;
+        } else if (cellIsOccupied()) {
             System.out.println("This cell is occupied! Choose another one!");
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
+    private boolean coordinatesAreOutOfRange() {
+        return (row > 2) || (row < 0) || (column > 2) || (column < 0);
+    }
+
+    private boolean cellIsOccupied() {
+        return grid.getCellMark(row, column) == 'X' || grid.getCellMark(row, column) == 'O';
+    }
 
 }

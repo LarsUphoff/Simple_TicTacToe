@@ -9,14 +9,6 @@ public class Grid {
         setEmptyGrid();
     }
 
-    public char[][] getTicTacToeGrid() {
-        return ticTacToeGrid;
-    }
-
-    public char getCellValue(int row, int column) {
-        return ticTacToeGrid[row][column];
-    }
-
     private void setEmptyGrid() {
         for (int i = 0, charIndex = 0; i <= 2; i++) {
             for (int j = 0; j <= 2; j++, charIndex++) {
@@ -33,8 +25,16 @@ public class Grid {
         System.out.println("---------");
     }
 
-    public void updateGrid(String rowCoordinate, String columnCoordinate, char playingCharacter) {
-        ticTacToeGrid[Integer.parseInt(rowCoordinate) - 1][Integer.parseInt(columnCoordinate) - 1] = playingCharacter;
+    public void updateGrid(int row, int column, char currentPlayersMark) {
+        ticTacToeGrid[row][column] = currentPlayersMark;
+    }
+
+    public char[][] getTicTacToeGrid() {
+        return ticTacToeGrid;
+    }
+
+    public char getCellMark(int row, int column) {
+        return ticTacToeGrid[row][column];
     }
 
     public boolean containsEmptyCells() {
